@@ -1,104 +1,106 @@
-# This script is made by Abdelbari Tarek SIBACHIR under the MIT License
-#
-# This script generates a weekly timetable for a team of 7 members with different roles (cooking, dishwashing, floor cleaning).
-# The workload is balanced across the team members, and the timetable is saved to a JSON file.
-# It also sends personalized emails to each team member with their schedule for the week.
-#
-
-
 
 import random
-import json
+from datetime import datetime, timedelta
 import smtplib
+from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-# Define the team members
-only_dishwashers = ["zaki", "Dahmen", "Badro"]  # 3 people
-cooks_and_dishwashers_and_cleaners = ["Tarek", "Abdelhak", "hamza", "akram"]  # 4 people
-all_members = only_dishwashers + cooks_and_dishwashers_and_cleaners
+# Define the people
+dishwashers = ["Zaki", "Dahmen", "Badro"]
+cook_cleaners = ["Tarek", "Abdelhak", "Akram", "Hamza"]
 
-days = ["March 12", "March 13", "March 14", "March 15", "March 16", "March 17", "March 18", "March 19"]
+# Define the schedule period
+start_date = datetime(2025, 3, 12)
+end_date = datetime(2025, 3, 19)
+num_days = (end_date - start_date).days + 1
 
-# Task weights
-TASK_WEIGHTS = {
-    "Cooking": 0.42,
-    "Dishwashing": 0.33,
-    "Floor Cleaning": 0.25
-}
+# Initialize the schedule dictionary
+schedule = {person: [] for person in dishwashers + cook_cleaners}
 
-# Track workload per member
-workload = {member: 0 for member in all_members}
+# Assign dishwashing task (same every day)
+for person in dishwashers:
+    for i in range(num_days):
+        current_date = start_date + timedelta(days=i)
+        date_str = current_date.strftime("%Y-%m-%d")
+        schedule[person].append((date_str, "Wash Dishes"))
 
-timetable = {}
+# Shuffle cook_cleaners to distribute tasks fairly
+random.shuffle(cook_cleaners)
 
-for day in days:
-    # Select 2 cooks ensuring balanced workload
-    cooks = sorted(cooks_and_dishwashers_and_cleaners, key=lambda x: workload[x])[:2]
-    for cook in cooks:
-        workload[cook] += TASK_WEIGHTS["Cooking"]
-    
-    # Select 3 dishwashers ensuring balanced workload
-    remaining_dishwashers = list(set(only_dishwashers + cooks_and_dishwashers_and_cleaners) - set(cooks))
-    dishwashers = sorted(remaining_dishwashers, key=lambda x: workload[x])[:3]
-    for dishwasher in dishwashers:
-        workload[dishwasher] += TASK_WEIGHTS["Dishwashing"]
-    
-    # Select 1 floor cleaner ensuring balanced workload
-    cleaner = sorted(cooks_and_dishwashers_and_cleaners, key=lambda x: workload[x])[0]
-    workload[cleaner] += TASK_WEIGHTS["Floor Cleaning"]
-    
-    # Store in timetable
-    timetable[day] = {
-        "Cooking": cooks,
-        "Dishwashing": dishwashers,
-        "Floor Cleaning": cleaner
-    }
+# Assign cooking and cleaning tasks ensuring each person gets 4 cooking and 2 cleaning tasks
+cook_cleaner_tasks = {person: {"Cook": 0, "Clean Floor": 0} for person in cook_cleaners}
 
-# Save timetable to a JSON file
-with open("timetable.json", "w") as f:
-    json.dump(timetable, f, indent=4)
+dates = [start_date + timedelta(days=i) for i in range(num_days)]
 
-print("Timetable generated and saved to timetable.json!")
-SMTP_SERVER = "smtp.gmail.com"
-SMTP_PORT = 587
-# Email sending function
+task_distribution = {date.strftime("%Y-%m-%d"): {"Cook": [], "Clean Floor": None} for date in dates}
+
+for date in dates:
+    date_str = date.strftime("%Y-%m-%d")
+
+    # Get the least assigned cook_cleaners for cooking
+    available_cooks = sorted(cook_cleaners, key=lambda x: cook_cleaner_tasks[x]["Cook"])
+    selected_cooks = available_cooks[:2]
+
+    for cook in selected_cooks:
+        schedule[cook].append((date_str, "Cook"))
+        cook_cleaner_tasks[cook]["Cook"] += 1
+    task_distribution[date_str]["Cook"] = selected_cooks
+
+    # Get the least assigned cook_cleaner for floor cleaning
+    available_cleaners = sorted([p for p in cook_cleaners if p not in selected_cooks], key=lambda x: cook_cleaner_tasks[x]["Clean Floor"])
+    selected_cleaner = available_cleaners[0]
+
+    schedule[selected_cleaner].append((date_str, "Clean Floor"))
+    cook_cleaner_tasks[selected_cleaner]["Clean Floor"] += 1
+    task_distribution[date_str]["Clean Floor"] = selected_cleaner
+
+# Function to send email
 def send_email(to_email, subject, body):
-    sender_email = "t6tarek@gmail.com"  # Replace with your email
-    sender_password = ""  # Replace with your App Password
-    
-    msg = MIMEText()
-    msg["Subject"] = subject
-    msg["From"] = sender_email
-    msg["To"] = to_email
-    msg.attach(MIMEText(body, "plain"))
-    try:
-        with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
-            server.starttls()  # Secure connection
-            server.login(sender_email, sender_password)
-            server.sendmail(sender_email, to_email, msg.as_string())
-    except Exception as e:
-        print(f"❌ Failed to send email to {to_email}: {e}")
+    from_email = "t6tarek@gmail.com"
+    password = "" # Add your email password here
 
-# Define emails for each person (replace with actual emails)
-emails = {
+    # Set up the server
+    server = smtplib.SMTP(host='smtp.gmail.com', port=587)
+    server.starttls()
+    server.login(from_email, password)
+
+    # Create the email
+    msg = MIMEMultipart()
+    msg['From'] = from_email
+    msg['To'] = to_email
+    msg['Cc'] = "t6tarek@gmail.com"
+    msg['Subject'] = subject
+
+    msg.attach(MIMEText(body, 'plain'))
+
+    # Send the email
+    server.send_message(msg)
+    server.quit()
+
+# Define email addresses for each worker
+email_addresses = {
+    "Zaki": "zakaria.chetouane@ensia.edu.dz",
+    "Dahmen": "abderrahmen.mehaddi@ensia.edu.dz",
+    "Badro": "badreddine.zerraf@ensia.edu.dz",
     "Tarek": "abdelbari.tarek.sibachir@ensia.edu.dz",
-    # "Person B": "@ensia.edu.dz",
-    # "Person C": "@ensia.edu.dz",
-    # "Person D": "@ensia.edu.dz",
-    # "Person E": "@ensia.edu.dz",
-    # "Person F": "@ensia.edu.dz",
-    # "Person G": "@ensia.edu.dz"
+    "Abdelhak": "abdelhak.benbouziane@ensia.edu.dz",
+    "Akram": "abderrehmane.mohamed.akram.seddik@ensia.edu.dz",
+    "Hamza": "hamza.abderaouf.khentache@ensia.edu.dz",
 }
 
-# Send personalized emails
-for person, email in emails.items():
-    schedule = []
-    print(f"Attempting to send email to {email} for {person} with schedule: {schedule}")
-    for day, tasks in timetable.items():
-        for role, workers in tasks.items():
-            print(f"Checking {person} in {workers}")
-            if isinstance(workers, list) and person in workers:  # Ensure it's a list
-                schedule.append(f"{day}: {role}")
-                print(f"Added {day}: {role} to {person}'s schedule")
-            elif isinstance(workers, str) and person == workers:  # Handle single cleaner
-                schedule.append(f"{day}: {role}")
+# Send the schedule via email
+for person, tasks in schedule.items():
+    body = f"This email is generated automatically, please don't respond to it\n\n Schedule for {person}:\n\n"
+    for task in tasks:
+        body += f"{task[0]}: {task[1]}\n"
+    body+= f"\n\n Saha ramdankom\n\nBest regards,\ndevelopeur"
+    # Send email to the person
+    send_email(email_addresses[person], f"Ramadan Schedule for {start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}", body)
+    print(f"Email sent to {person}")
+
+# Print the schedule for each person
+for person, tasks in schedule.items():
+    print(f"Schedule for {person}:")
+    for task in tasks:
+        print(f"{task[0]}: {task[1]}")
+    print("\n")
