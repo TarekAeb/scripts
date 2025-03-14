@@ -1,3 +1,12 @@
+# This script is made by Abdelbari Tarek SIBACHIR under the MIT License
+#
+# This script generates a weekly timetable for a team of 7 members with different roles (cooking, dishwashing, floor cleaning).
+# The workload is balanced across the team members, and the timetable is saved to a JSON file.
+# It also sends personalized emails to each team member with their schedule for the week.
+#
+
+
+
 import random
 import json
 import smtplib
@@ -55,7 +64,7 @@ SMTP_PORT = 587
 # Email sending function
 def send_email(to_email, subject, body):
     sender_email = "t6tarek@gmail.com"  # Replace with your email
-    sender_password = "jyqv qhbs zoxv digg"  # Replace with your App Password
+    sender_password = ""  # Replace with your App Password
     
     msg = MIMEText()
     msg["Subject"] = subject

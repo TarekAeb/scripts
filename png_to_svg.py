@@ -1,3 +1,8 @@
+# This script has been made by Abdelbari Tarek SIBACHIR under the MIT License
+#
+# This script converts a PNG/JPG image to an SVG file using the Python Imaging Library (PIL).
+#
+
 from PIL import Image, ImageDraw
 
 # Open an existing PNG/JPG image as a blank canvas for SVG output
