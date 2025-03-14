@@ -1,0 +1,98 @@
+{
+    "March 12": {
+        "Cooking": [
+            "Tarek",
+            "Abdelhak"
+        ],
+        "Dishwashing": [
+            "akram",
+            "hamza",
+            "Badro"
+        ],
+        "Floor Cleaning": "hamza"
+    },
+    "March 13": {
+        "Cooking": [
+            "akram",
+            "Tarek"
+        ],
+        "Dishwashing": [
+            "zaki",
+            "Dahmen",
+            "Badro"
+        ],
+        "Floor Cleaning": "Abdelhak"
+    },
+    "March 14": {
+        "Cooking": [
+            "hamza",
+            "Abdelhak"
+        ],
+        "Dishwashing": [
+            "zaki",
+            "Dahmen",
+            "Badro"
+        ],
+        "Floor Cleaning": "akram"
+    },
+    "March 15": {
+        "Cooking": [
+            "Tarek",
+            "hamza"
+        ],
+        "Dishwashing": [
+            "zaki",
+            "Dahmen",
+            "Badro"
+        ],
+        "Floor Cleaning": "akram"
+    },
+    "March 16": {
+        "Cooking": [
+            "Abdelhak",
+            "akram"
+        ],
+        "Dishwashing": [
+            "zaki",
+            "Dahmen",
+            "Tarek"
+        ],
+        "Floor Cleaning": "hamza"
+    },
+    "March 17": {
+        "Cooking": [
+            "Abdelhak",
+            "Tarek"
+        ],
+        "Dishwashing": [
+            "Badro",
+            "zaki",
+            "Dahmen"
+        ],
+        "Floor Cleaning": "hamza"
+    },
+    "March 18": {
+        "Cooking": [
+            "akram",
+            "hamza"
+        ],
+        "Dishwashing": [
+            "Badro",
+            "zaki",
+            "Dahmen"
+        ],
+        "Floor Cleaning": "Abdelhak"
+    },
+    "March 19": {
+        "Cooking": [
+            "Tarek",
+            "akram"
+        ],
+        "Dishwashing": [
+            "Badro",
+            "zaki",
+            "Dahmen"
+        ],
+        "Floor Cleaning": "Abdelhak"
+    }
+}
